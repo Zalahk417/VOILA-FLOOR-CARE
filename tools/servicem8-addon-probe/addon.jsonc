@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/@servicem8/addon-kit/addon-schema.json",
+  "slug": "bvp-addon-kit-probe",
+  "name": "BVP Addon Kit Probe",
+  "version": "1.0",
+  "main": "src/index.js",
+  "actions": [
+    {
+      "name": "BVP Probe",
+      "type": "online",
+      "entity": "job",
+      "iconURL": "https://go.servicem8.com/images/addon-sdk-sample-icon.png",
+      "event": "bvp_probe",
+      "location": "modal"
+    }
+  ],
+  "webhooks": [
+    {
+      "object": "job",
+      "fields": ["status"]
+    }
+  ]
+}
