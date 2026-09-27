@@ -1,0 +1,91 @@
+name: ServiceM8 Addon Kit Probe
+
+on:
+  push:
+    branches:
+      - "test/addon-kit-probe"
+    paths:
+      - ".github/workflows/servicem8-addon-kit-probe.yml"
+      - "tools/servicem8-addon-probe/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: servicem8-addon-kit-probe
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      SERVICEM8_API_KEY: ${{ secrets.SERVICEM8_API_KEY || secrets.VFC_SERVICEM8_API_KEY }}
+      SM8_API_KEY: ${{ secrets.SERVICEM8_API_KEY || secrets.VFC_SERVICEM8_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify registered ServiceM8 credential exists
+        shell: bash
+        run: |
+          if [ -z "${SM8_API_KEY:-}" ]; then
+            echo "::error::No registered ServiceM8 API key is available to this workflow."
+            exit 3
+          fi
+
+      - name: Install Addon Kit 1.3.0
+        working-directory: tools/servicem8-addon-probe
+        run: npm install --no-audit --no-fund
+
+      - name: Report CLI version
+        working-directory: tools/servicem8-addon-probe
+        run: npx addon-kit --version
+
+      - name: Run synthetic action and webhook handler smoke tests
+        working-directory: tools/servicem8-addon-probe
+        run: node scripts/local-smoke.mjs
+
+      - name: Validate and bundle without deployment
+        working-directory: tools/servicem8-addon-probe
+        run: npx addon-kit deploy --dry-run
+
+      - name: Verify ServiceM8 Addon Kit credential
+        working-directory: tools/servicem8-addon-probe
+        run: npx addon-kit whoami
+
+      - name: Deploy read-only probe add-on
+        working-directory: tools/servicem8-addon-probe
+        run: npx addon-kit deploy
+
+      - name: Tail hosted add-on logs for webhook/action evidence
+        id: tail
+        working-directory: tools/servicem8-addon-probe
+        shell: bash
+        run: |
+          set +e
+          timeout 300s npx addon-kit tail --format json > addon-kit-tail.json 2> addon-kit-tail.stderr
+          code=$?
+          set -e
+          cat addon-kit-tail.stderr || true
+          cat addon-kit-tail.json || true
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            exit "$code"
+          fi
+
+      - name: Upload probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: servicem8-addon-kit-probe-evidence
+          path: |
+            tools/servicem8-addon-probe/addon-kit-tail.json
+            tools/servicem8-addon-probe/addon-kit-tail.stderr
+          if-no-files-found: warn
+          retention-days: 14
