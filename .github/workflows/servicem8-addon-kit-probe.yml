@@ -32,14 +32,6 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Verify registered ServiceM8 credential exists
-        shell: bash
-        run: |
-          if [ -z "${SM8_API_KEY:-}" ]; then
-            echo "::error::No registered ServiceM8 API key is available to this workflow."
-            exit 3
-          fi
-
       - name: Install Addon Kit 1.3.0
         working-directory: tools/servicem8-addon-probe
         run: npm install --no-audit --no-fund
@@ -56,15 +48,29 @@ jobs:
         working-directory: tools/servicem8-addon-probe
         run: npx addon-kit deploy --dry-run
 
+      - name: Detect hosted-deploy credential
+        id: auth
+        shell: bash
+        run: |
+          if [ -n "${SM8_API_KEY:-}" ]; then
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No registered ServiceM8 API key is available to this workflow; hosted deploy/tail tests are skipped."
+          fi
+
       - name: Verify ServiceM8 Addon Kit credential
+        if: steps.auth.outputs.has_key == 'true'
         working-directory: tools/servicem8-addon-probe
         run: npx addon-kit whoami
 
       - name: Deploy read-only probe add-on
+        if: steps.auth.outputs.has_key == 'true'
         working-directory: tools/servicem8-addon-probe
         run: npx addon-kit deploy
 
       - name: Tail hosted add-on logs for webhook/action evidence
+        if: steps.auth.outputs.has_key == 'true'
         id: tail
         working-directory: tools/servicem8-addon-probe
         shell: bash
