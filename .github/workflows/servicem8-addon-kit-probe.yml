@@ -48,6 +48,20 @@ jobs:
         working-directory: tools/servicem8-addon-probe
         run: npx addon-kit deploy --dry-run
 
+      - name: Inspect Addon Kit OAuth login URL
+        if: ${{ env.SM8_API_KEY == '' }}
+        working-directory: tools/servicem8-addon-probe
+        shell: bash
+        run: |
+          set +e
+          timeout 8s npx addon-kit login --browser=false > oauth-login.txt 2>&1
+          code=$?
+          set -e
+          sed -E 's/(code|token|secret|api_key)=([^&[:space:]]+)/\\1=[REDACTED]/gi' oauth-login.txt
+          if [ "$code" -ne 0 ] && [ "$code" -ne 124 ]; then
+            exit "$code"
+          fi
+
       - name: Detect hosted-deploy credential
         id: auth
         shell: bash
