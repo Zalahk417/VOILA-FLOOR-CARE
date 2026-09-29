@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project_id": "vfc-interactive-home-adelaide-2026",
   "title": "Voilà Floor Care — Interactive Home",
-  "status": "pre-generation",
+  "status": "concept_v01_generated_review_pending",
   "target_market": "Adelaide, South Australia",
   "canonical_repo": "Zalahk417/VOILA-FLOOR-CARE",
   "brand": {
@@ -31,7 +31,7 @@
     "target_total": 93.5,
     "connected_balance_observed_2026_09_29": 1.85,
     "pending_trial_credits_observed": 100,
-    "spending_gate": "Do not generate until workspace/balance identity is reconciled or owner explicitly approves trial use."
+    "spending_gate": "Owner explicitly approved one concept draft capped at US$2.50 on 29 Sep 2026. Future paid generations remain bounded by explicit task caps and the production budget."
   },
   "stages": [
     {
@@ -174,5 +174,31 @@
     "sha256": null,
     "approval_status": "pending",
     "notes": null
-  }
+  },
+  "api_concept_drafts": [
+    {
+      "asset_id": "vfc-house-concept-v01",
+      "phase": "concept_motion_draft",
+      "version": "v01",
+      "model": "bytedance/seedance-2.5/text-to-video",
+      "parameters": {
+        "duration_s": 16,
+        "resolution": "480p",
+        "aspect_ratio": "16:9",
+        "output_format": "mp4",
+        "generate_audio": false
+      },
+      "prompt_version": "HIGGSFIELD_PROMPTS_v1-derived",
+      "runtime_request_id": "vfc-house-concept-v01-20260929-1930",
+      "github_workflow_run_id": 36562243067,
+      "provider_request_id": "26f7792d-21e3-479f-829d-79c43f0ba841",
+      "estimated_cost_usd": 2.304,
+      "owner_cap_usd": 2.5,
+      "actual_cost_usd": null,
+      "source_url": "https://d3u0tzju9qaucj.cloudfront.net/2ee44b50-17ec-429e-9430-945d6e5041f8/fca66e6e-e2ff-403b-bcf5-4a1e02a9ec5f.mp4",
+      "durable_url": null,
+      "approval_status": "review_pending",
+      "notes": "First concept-only continuous Adelaide house walkthrough. Temporary transport PR #110 closed without merge after successful execution. Provider result did not expose actual billing."
+    }
+  ]
 }
