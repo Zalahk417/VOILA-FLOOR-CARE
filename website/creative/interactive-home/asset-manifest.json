@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "project_id": "vfc-interactive-home-adelaide-2026",
+  "title": "Voilà Floor Care — Interactive Home",
+  "status": "pre-generation",
+  "target_market": "Adelaide, South Australia",
+  "canonical_repo": "Zalahk417/VOILA-FLOOR-CARE",
+  "brand": {
+    "name": "Voilà Floor Care",
+    "palette": {
+      "ink": "#17242B",
+      "navy": "#17384C",
+      "ivory": "#F7F4EE",
+      "copper": "#A66F4E"
+    },
+    "primary_cta": "Request a Quote"
+  },
+  "storage_policy": {
+    "github": "Prompts, manifests, approvals, version history and deployable optimised assets.",
+    "notion": "Human-readable decisions, research synthesis and approval log.",
+    "cloudflare": "Production delivery. Use R2 for heavy durable masters if required. Never hotlink temporary generation URLs."
+  },
+  "naming_pattern": "vfc-house-s<scene>-<slug>-v<version>-<model>-<resolution>.<ext>",
+  "budget": {
+    "unit": "Higgsfield credits",
+    "hard_ceiling_without_new_approval": 100,
+    "storyboard_target": 1,
+    "motion_proof": 22.5,
+    "final_five_legs": 50,
+    "contingency_two_rerolls": 20,
+    "target_total": 93.5,
+    "connected_balance_observed_2026_09_29": 1.85,
+    "pending_trial_credits_observed": 100,
+    "spending_gate": "Do not generate until workspace/balance identity is reconciled or owner explicitly approves trial use."
+  },
+  "stages": [
+    {
+      "id": "G0",
+      "name": "Research and creative system",
+      "status": "complete",
+      "estimated_credits": 0
+    },
+    {
+      "id": "G1",
+      "name": "Storyboard/world lock",
+      "status": "ready",
+      "estimated_credits": 1
+    },
+    {
+      "id": "G2",
+      "name": "15-second motion grammar proof",
+      "status": "blocked_by_spending_gate",
+      "model": "kling3_0_turbo",
+      "duration_s": 15,
+      "resolution": "720p",
+      "estimated_credits": 22.5
+    },
+    {
+      "id": "G3",
+      "name": "Sequential final legs",
+      "status": "blocked_by_G2_approval",
+      "model": "kling3_0_turbo",
+      "duration_s_each": 5,
+      "resolution": "1080p",
+      "scene_count": 5,
+      "estimated_credits": 50
+    },
+    {
+      "id": "G4",
+      "name": "Continuity contingency",
+      "status": "reserved",
+      "rerolls": 2,
+      "estimated_credits": 20
+    }
+  ],
+  "scenes": [
+    {
+      "id": "S01",
+      "slug": "entry-living",
+      "surfaces": [
+        "tile",
+        "grout",
+        "wool rug"
+      ],
+      "services": [
+        "Tile & Grout Cleaning",
+        "Rug / Wool Care"
+      ],
+      "parent_asset_id": null,
+      "status": "not_generated"
+    },
+    {
+      "id": "S02",
+      "slug": "lounge-theatre",
+      "surfaces": [
+        "wool carpet",
+        "leather",
+        "upholstery"
+      ],
+      "services": [
+        "Carpet Cleaning",
+        "Wool Specialist Care",
+        "Leather Cleaning & Conditioning",
+        "Upholstery Cleaning"
+      ],
+      "parent_asset_id": "S01:last_frame",
+      "status": "not_generated"
+    },
+    {
+      "id": "S03",
+      "slug": "master-suite",
+      "surfaces": [
+        "carpet",
+        "upholstery",
+        "mattress"
+      ],
+      "services": [
+        "Carpet Cleaning",
+        "Upholstery / Mattress Care"
+      ],
+      "parent_asset_id": "S02:last_frame",
+      "status": "not_generated"
+    },
+    {
+      "id": "S04",
+      "slug": "ensuite",
+      "surfaces": [
+        "tile",
+        "grout",
+        "natural stone",
+        "shower glass"
+      ],
+      "services": [
+        "Tile & Grout Cleaning",
+        "Shower / Grout Restoration",
+        "Natural Stone Cleaning & Protection"
+      ],
+      "parent_asset_id": "S03:last_frame",
+      "status": "not_generated"
+    },
+    {
+      "id": "S05",
+      "slug": "terrace",
+      "surfaces": [
+        "terracotta",
+        "masonry",
+        "natural stone"
+      ],
+      "services": [
+        "Terracotta Cleaning & Resealing",
+        "Natural Stone Cleaning & Protection",
+        "Floor Sealing / Recoating"
+      ],
+      "parent_asset_id": "S04:last_frame",
+      "status": "not_generated"
+    }
+  ],
+  "asset_record_template": {
+    "asset_id": null,
+    "scene_id": null,
+    "phase": null,
+    "version": null,
+    "model": null,
+    "parameters": {},
+    "prompt_version": "HIGGSFIELD_PROMPTS_v1",
+    "parent_asset_id": null,
+    "higgsfield_job_id": null,
+    "provider_request_id": null,
+    "estimated_credits": null,
+    "actual_credits": null,
+    "source_url": null,
+    "durable_url": null,
+    "repo_path": null,
+    "sha256": null,
+    "approval_status": "pending",
+    "notes": null
+  }
+}
