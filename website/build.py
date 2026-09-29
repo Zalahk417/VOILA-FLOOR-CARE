@@ -65,13 +65,20 @@ def add_public_phone_details() -> None:
 
     replacements = {"footer": 0, "contact": 0, "privacy": 0, "schema": 0}
     html_paths = list(DIST.rglob("*.html"))
+    expected_footer_count = 0
 
     for html_path in html_paths:
         html = html_path.read_text(encoding="utf-8")
-        replacements["footer"] += html.count(footer_anchor)
+        relative_path = html_path.relative_to(DIST).as_posix()
+        is_cinematic = relative_path == "cinematic/index.html"
+
+        if not is_cinematic:
+            expected_footer_count += 1
+            replacements["footer"] += html.count(footer_anchor)
+            html = html.replace(footer_anchor, footer_with_phone)
+
         replacements["contact"] += html.count(contact_panel)
         replacements["privacy"] += html.count(privacy_draft)
-        html = html.replace(footer_anchor, footer_with_phone)
         html = html.replace(contact_panel, contact_panel_with_phone)
         html = html.replace(privacy_draft, privacy_contact)
 
@@ -85,7 +92,7 @@ def add_public_phone_details() -> None:
 
         html_path.write_text(html, encoding="utf-8")
 
-    expected = {"footer": len(html_paths), "contact": 1, "privacy": 1, "schema": 1}
+    expected = {"footer": expected_footer_count, "contact": 1, "privacy": 1, "schema": 1}
     if replacements != expected:
         raise RuntimeError(f"Phone detail injection mismatch: {replacements} != {expected}")
 
@@ -323,6 +330,8 @@ def apply_latest_site_requirements() -> None:
 
     for html_path in html_paths:
         html = html_path.read_text(encoding="utf-8")
+        relative_path = html_path.relative_to(DIST).as_posix()
+        is_cinematic = relative_path == "cinematic/index.html"
 
         for variant in brand_variants:
             html = html.replace(variant, BRAND)
@@ -334,10 +343,10 @@ def apply_latest_site_requirements() -> None:
             if form_count != 1:
                 raise RuntimeError("Expected exactly one BVP contact enquiry form")
 
-        if "voila-sep11-enhancements" not in html:
+        if not is_cinematic and "voila-sep11-enhancements" not in html:
             html = html.replace("</head>", _site_enhancement_css() + "</head>", 1)
 
-        if '<div class="voila-contact-strip"' not in html:
+        if not is_cinematic and '<div class="voila-contact-strip"' not in html:
             body_match = re.search(r"<body[^>]*>", html, flags=re.IGNORECASE)
             if body_match:
                 insert_at = body_match.end()
@@ -363,7 +372,7 @@ def apply_latest_site_requirements() -> None:
                 flags=re.IGNORECASE,
             )
 
-        if '<a class="voila-sticky-quote"' not in html:
+        if not is_cinematic and '<a class="voila-sticky-quote"' not in html:
             html = re.sub(
                 r"</body>",
                 sticky_quote + "</body>",
