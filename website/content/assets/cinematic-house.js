@@ -1,0 +1,12 @@
+(()=>{const shell=document.getElementById('house-tour'),video=document.getElementById('house-film'),bar=document.getElementById('progress-bar'),chapters=[...document.querySelectorAll('.chapter')];if(!shell||!video)return;
+let duration=20,raf=0,ready=false,last=-1;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const progress=()=>{const r=shell.getBoundingClientRect(),range=Math.max(1,shell.offsetHeight-innerHeight);return clamp(-r.top/range,0,1)};
+const update=()=>{raf=0;const p=progress();if(bar)bar.style.width=(p*100).toFixed(2)+'%';chapters.forEach(el=>{const a=+el.dataset.start||0,b=+el.dataset.end||1;el.classList.toggle('is-active',p>=a&&p<b)});if(ready&&Math.abs(p-last)>.0008){last=p;const t=clamp(p*duration,0,Math.max(.01,duration-.03));if(Math.abs(video.currentTime-t)>.035)video.currentTime=t}};
+const request=()=>{if(!raf)raf=requestAnimationFrame(update)};
+video.addEventListener('loadedmetadata',()=>{duration=Number.isFinite(video.duration)&&video.duration>0?video.duration:20;ready=true;update()});
+video.addEventListener('canplay',()=>{ready=true;request()});
+addEventListener('scroll',request,{passive:true});addEventListener('resize',request,{passive:true});
+const prime=()=>{if(video.readyState<1)video.load();if(video.paused){const p=video.play();if(p&&p.then)p.then(()=>video.pause()).catch(()=>{})}};
+addEventListener('touchstart',prime,{once:true,passive:true});addEventListener('pointerdown',prime,{once:true,passive:true});request();
+})();
