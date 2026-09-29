@@ -20,17 +20,26 @@ class WebsiteBuildAcceptanceTest(unittest.TestCase):
             check=True,
         )
 
-    def test_homepage_has_current_brand_and_primary_actions(self):
+    def test_homepage_has_house_of_voila_and_primary_actions(self):
         html = (DIST / "index.html").read_text(encoding="utf-8")
         self.assertIn("Voilà Floor Care", html)
-        self.assertIn('<div class="voila-contact-strip">', html)
-        self.assertIn('<section class="voila-hero-banner"', html)
-        self.assertIn("tile-grout-restoration-03.webp", html)
+        self.assertIn('id="house-tour"', html)
+        self.assertIn('id="house-film"', html)
+        self.assertIn('class="hotspot-layer"', html)
+        self.assertIn('id="service-drawer"', html)
+        self.assertIn("Care starts with the surface.", html)
+        self.assertIn("Cinematic concept imagery", html)
         self.assertNotIn(SERVICEM8_URL, html)
         self.assertIn("0402 221 071", html)
-        self.assertIn('<a class="voila-sticky-quote" href="/contact/"', html)
-        self.assertIn('<a class="voila-primary-cta" href="/contact/">Start an Enquiry</a>', html)
+        self.assertIn('<a class="floating-cta" href="/contact/">Request a Quote</a>', html)
         self.assertIn('/terms/', html)
+
+    def test_cinematic_route_keeps_the_same_interactive_house(self):
+        homepage = (DIST / "index.html").read_text(encoding="utf-8")
+        cinematic = (DIST / "cinematic" / "index.html").read_text(encoding="utf-8")
+        for marker in ('id="house-film"', 'class="hotspot-layer"', 'id="service-drawer"'):
+            self.assertIn(marker, homepage)
+            self.assertIn(marker, cinematic)
 
     def test_contact_form_uses_bvp_enquiry_endpoint(self):
         contact = (DIST / "contact" / "index.html").read_text(encoding="utf-8")
