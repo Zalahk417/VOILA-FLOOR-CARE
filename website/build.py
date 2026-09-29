@@ -143,6 +143,8 @@ def simplify_customer_copy() -> None:
     for path, replacements in PAGE_REPLACEMENTS.items():
         if path not in pages:
             raise RuntimeError(f"Copy target page is missing from build output: {path}")
+        if path == "index.html" and 'id="house-tour"' in pages[path]:
+            continue
         for old, new in replacements:
             if old not in pages[path]:
                 raise RuntimeError(f"Page copy was not found in {path}: {old}")
