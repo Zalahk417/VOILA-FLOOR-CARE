@@ -70,7 +70,7 @@ def add_public_phone_details() -> None:
     for html_path in html_paths:
         html = html_path.read_text(encoding="utf-8")
         relative_path = html_path.relative_to(DIST).as_posix()
-        is_cinematic = relative_path == "cinematic/index.html"
+        is_cinematic = relative_path in {"index.html", "cinematic/index.html"}
 
         if not is_cinematic:
             expected_footer_count += 1
@@ -82,7 +82,7 @@ def add_public_phone_details() -> None:
         html = html.replace(contact_panel, contact_panel_with_phone)
         html = html.replace(privacy_draft, privacy_contact)
 
-        if html_path == DIST / "index.html":
+        if html_path == DIST / "index.html" and not is_cinematic:
             schema_anchor = '"url":"https://www.voilafloor.com.au","areaServed"'
             replacements["schema"] += html.count(schema_anchor)
             html = html.replace(
@@ -92,7 +92,7 @@ def add_public_phone_details() -> None:
 
         html_path.write_text(html, encoding="utf-8")
 
-    expected = {"footer": expected_footer_count, "contact": 1, "privacy": 1, "schema": 1}
+    expected = {"footer": expected_footer_count, "contact": 1, "privacy": 1, "schema": 0}
     if replacements != expected:
         raise RuntimeError(f"Phone detail injection mismatch: {replacements} != {expected}")
 
@@ -331,7 +331,7 @@ def apply_latest_site_requirements() -> None:
     for html_path in html_paths:
         html = html_path.read_text(encoding="utf-8")
         relative_path = html_path.relative_to(DIST).as_posix()
-        is_cinematic = relative_path == "cinematic/index.html"
+        is_cinematic = relative_path in {"index.html", "cinematic/index.html"}
 
         for variant in brand_variants:
             html = html.replace(variant, BRAND)
@@ -387,13 +387,13 @@ def apply_latest_site_requirements() -> None:
     index_html = (DIST / "index.html").read_text(encoding="utf-8")
     checks = {
         "canonical brand": BRAND in index_html,
-        "contact strip": '<div class="voila-contact-strip"' in index_html,
-        "tile hero": '<section class="voila-hero-banner"' in index_html and HERO_IMAGE in index_html,
+        "House of Voilà hero": 'id="house-tour"' in index_html and 'id="house-film"' in index_html,
+        "interactive service hotspots": 'class="hotspot-layer"' in index_html and 'id="service-drawer"' in index_html,
         "BVP enquiry path": f'href="{ENQUIRY_URL}"' in index_html,
         "no primary ServiceM8 bypass": SERVICEM8_BOOKING_URL not in index_html,
         "phone": PHONE_DISPLAY in index_html,
         "terms": "/terms/" in index_html,
-        "sticky quote": '<a class="voila-sticky-quote"' in index_html,
+        "persistent quote CTA": 'class="floating-cta"' in index_html,
     }
     failed = [name for name, passed in checks.items() if not passed]
     if failed:
