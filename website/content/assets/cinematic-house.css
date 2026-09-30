@@ -366,3 +366,9 @@ button,a{-webkit-tap-highlight-color:transparent}.skip-link{position:fixed;left:
   .welcome-layer,.welcome-worker{transform:none!important}
   .surface-hotspot .hotspot-hand{animation:none}
 }
+
+
+/* welcome visibility hardening */
+.welcome-layer{z-index:40!important;display:block!important;opacity:1;visibility:visible;isolation:isolate}
+.welcome-worker{z-index:1}
+.welcome-copy{z-index:2}
