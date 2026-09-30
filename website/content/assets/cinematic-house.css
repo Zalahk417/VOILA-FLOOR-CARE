@@ -24,7 +24,7 @@ button,a{-webkit-tap-highlight-color:transparent}.skip-link{position:fixed;left:
 .floating-cta{position:fixed;z-index:900;right:1rem;bottom:1rem;background:var(--navy);color:#fff;text-decoration:none;padding:.85rem 1.1rem;border-radius:999px;font-weight:900;box-shadow:0 14px 40px rgba(0,0,0,.28)}.site-foot{background:#111b20;color:#fff;padding:2rem clamp(1rem,6vw,6rem);display:flex;flex-wrap:wrap;gap:1.25rem;border-top:1px solid rgba(255,255,255,.12)}.site-foot span{margin-right:auto;color:rgba(255,255,255,.72)}.site-foot a{text-decoration:none;font-weight:750}.site-foot a:hover{text-decoration:underline}
 @media(max-width:900px){.site-head nav>a:not(.head-cta){display:none}.proof-band,.commercial-band{grid-template-columns:1fr}.commercial-band{align-items:start}.commercial-band .secondary.dark{justify-self:start}.bottom-cta{align-items:flex-start;flex-direction:column}.bottom-cta .actions{justify-content:flex-start}.principles{grid-template-columns:1fr}.media-note{max-width:300px}}
 @media(max-width:800px){.scrub-shell{height:590vh}.film-shade{background:linear-gradient(0deg,rgba(13,22,27,.72) 0%,rgba(13,22,27,.08) 62%,rgba(13,22,27,.24) 100%)}.chapter h1{font-size:clamp(2.9rem,15vw,5rem)}.chapter h2{font-size:clamp(2.35rem,11vw,4rem)}.scene-readout{left:1rem;bottom:4.8rem}.scene-name{max-width:calc(100vw - 5rem);overflow:hidden;text-overflow:ellipsis}.surface-hotspot{width:52px;height:52px}.hotspot-label{opacity:1;transform:translateX(-50%) translateY(0);font-size:.66rem}.service-drawer{position:absolute;left:1rem;right:1rem;top:auto;bottom:1rem;width:auto;max-height:62vh;transform:translateY(24px);border-radius:22px}.service-drawer.is-open{transform:none}.final-card{left:1rem;right:1rem;bottom:4.5rem;transform:translateY(16px);max-width:none}.final-card.is-active{transform:none}.service-grid{grid-template-columns:1fr}.floating-cta{right:.75rem;bottom:.75rem}.site-foot span{width:100%;margin-right:0}.media-note{left:1rem;right:auto;bottom:.55rem;text-align:left;max-width:calc(100vw - 9rem)}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scrub-shell{height:auto}.scrub-stage{position:relative;min-height:100vh;height:auto;padding:7rem 1rem 2rem;display:grid;gap:1rem;background:linear-gradient(rgba(13,22,27,.62),rgba(13,22,27,.88)),url('/assets/case-studies/tile-grout-restoration-03.webp') center/cover}.scrub-stage video,.film-shade,.progress,.hotspot-layer,.service-drawer,.scene-readout{display:none}.chapter,.intro-card,.final-card{position:relative;inset:auto;left:auto;right:auto;bottom:auto;opacity:1;transform:none!important;pointer-events:auto;max-width:680px;margin:0 auto;width:100%;text-align:left}.chapter{background:rgba(13,22,27,.74);padding:1.25rem;border-radius:18px}.scroll-cue{display:none}.media-note{position:relative;inset:auto;margin:0 auto;max-width:680px;text-align:left}.hotspot-ring{animation:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scrub-shell{height:auto}.scrub-stage{position:relative;min-height:100vh;height:auto;padding:7rem 1rem 2rem;display:grid;gap:1rem;background:var(--ink)}.scrub-stage video,.film-shade,.progress,.hotspot-layer,.service-drawer,.scene-readout{display:none}.chapter,.intro-card,.final-card{position:relative;inset:auto;left:auto;right:auto;bottom:auto;opacity:1;transform:none!important;pointer-events:auto;max-width:680px;margin:0 auto;width:100%;text-align:left}.chapter{background:rgba(13,22,27,.74);padding:1.25rem;border-radius:18px}.scroll-cue{display:none}.media-note{position:relative;inset:auto;margin:0 auto;max-width:680px;text-align:left}.hotspot-ring{animation:none}}
 
 /* tracked surface pointers v2 */
 .hotspot-layer{position:absolute;z-index:10;inset:0;pointer-events:none}
@@ -40,3 +40,87 @@ button,a{-webkit-tap-highlight-color:transparent}.skip-link{position:fixed;left:
 @keyframes voilaContact{0%{opacity:0;transform:translateX(-50%) scale(.55)}38%{opacity:0;transform:translateX(-50%) scale(.55)}52%{opacity:.9;transform:translateX(-50%) scale(.8)}100%{opacity:0;transform:translateX(-50%) scale(2.15)}}
 @media(max-width:800px){.surface-hotspot{width:58px;height:72px;transform:translate(-50%,-10px)}.hotspot-finger{font-size:31px}.hotspot-label{top:47px;opacity:.92;transform:translateX(-50%) translateY(0);font-size:.64rem;padding:.36rem .55rem}}
 @media(prefers-reduced-motion:reduce){.hotspot-finger,.hotspot-contact{animation:none}.hotspot-finger{transform:none}.hotspot-contact{opacity:.55;transform:translateX(-50%) scale(1)}}
+
+
+/* tracked service pointers v3 — visible labels + direct-entry frame */
+.scrub-stage{background:var(--ink)}
+.surface-hotspot{
+  width:164px;
+  height:86px;
+  transform:translate(-50%,-78px);
+  overflow:visible;
+}
+.surface-hotspot.is-active{opacity:1}
+.hotspot-label{
+  top:0;
+  left:50%;
+  opacity:1;
+  transform:translateX(-50%);
+  padding:.46rem .72rem;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.025em;
+  background:rgba(23,36,43,.94);
+  border:1px solid rgba(166,111,78,.82);
+  box-shadow:0 10px 26px rgba(0,0,0,.25);
+  color:var(--ivory);
+}
+.surface-hotspot:hover .hotspot-label,
+.surface-hotspot:focus-visible .hotspot-label,
+.surface-hotspot[aria-expanded="true"] .hotspot-label{
+  opacity:1;
+  transform:translateX(-50%);
+  background:var(--navy);
+}
+.hotspot-hand{
+  top:34px;
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:rgba(23,36,43,.96);
+  border:1px solid rgba(166,111,78,.88);
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+  filter:none;
+  animation:voilaHandBob 1.6s ease-in-out infinite;
+}
+.hotspot-finger{
+  color:var(--ivory);
+  font-size:29px;
+  line-height:1;
+  animation:none;
+  transform:none;
+  text-shadow:none;
+}
+.hotspot-contact{
+  z-index:2;
+  left:50%;
+  top:auto;
+  bottom:-10px;
+  width:11px;
+  height:11px;
+  border:2px solid var(--copper);
+  background:rgba(247,244,238,.72);
+  box-shadow:0 0 0 4px rgba(166,111,78,.18);
+  animation:voilaContactDown 1.6s ease-out infinite;
+}
+@keyframes voilaHandBob{
+  0%,100%{transform:translateX(-50%) translateY(-4px)}
+  48%,62%{transform:translateX(-50%) translateY(2px)}
+}
+@keyframes voilaContactDown{
+  0%,35%{opacity:0;transform:translateX(-50%) scale(.55)}
+  52%{opacity:1;transform:translateX(-50%) scale(.9)}
+  100%{opacity:0;transform:translateX(-50%) scale(2.25)}
+}
+@media(max-width:800px){
+  .surface-hotspot{width:148px;height:80px;transform:translate(-50%,-72px)}
+  .hotspot-label{top:0;font-size:.66rem;padding:.4rem .62rem}
+  .hotspot-hand{top:31px;width:40px;height:40px;border-radius:13px}
+  .hotspot-finger{font-size:26px}
+}
+@media(prefers-reduced-motion:reduce){
+  .scrub-stage{background:var(--ink)}
+  .hotspot-hand,.hotspot-contact{animation:none}
+}
