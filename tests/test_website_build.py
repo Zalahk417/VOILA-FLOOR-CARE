@@ -31,6 +31,7 @@ class WebsiteBuildAcceptanceTest(unittest.TestCase):
         self.assertIn('class="hotspot-finger"', html)
         self.assertIn('class="hotspot-finger">☟︎</span>', html)
         self.assertNotIn('poster="/assets/case-studies/tile-grout-restoration-03.webp"', html)
+        self.assertNotIn('class="voila-hero-banner"', html)
         self.assertNotIn('class="hotspot-ring"', html)
         self.assertIn("Care starts with the surface.", html)
         self.assertIn("Cinematic concept imagery", html)
