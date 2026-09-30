@@ -26,7 +26,14 @@ class WebsiteBuildAcceptanceTest(unittest.TestCase):
         self.assertIn('id="house-tour"', html)
         self.assertIn('id="house-film"', html)
         self.assertIn('class="hotspot-layer"', html)
-        self.assertIn('id="service-drawer"', html)
+        self.assertIn('id="welcome-layer"', html)
+        self.assertIn('id="scene-services"', html)
+        self.assertIn('id="house-lead-form"', html)
+        self.assertIn('id="lead-photos"', html)
+        self.assertIn('href="/services/carpet-cleaning/"', html)
+        self.assertIn('href="/services/upholstery-leather/"', html)
+        self.assertIn('href="/services/floor-sealing-finishing/"', html)
+        self.assertNotIn('id="service-drawer"', html)
         self.assertIn('data-track="0.255,0.25,0.68', html)
         self.assertIn('class="hotspot-finger"', html)
         self.assertIn('class="hotspot-finger">☟︎</span>', html)
@@ -43,7 +50,7 @@ class WebsiteBuildAcceptanceTest(unittest.TestCase):
     def test_cinematic_route_keeps_the_same_interactive_house(self):
         homepage = (DIST / "index.html").read_text(encoding="utf-8")
         cinematic = (DIST / "cinematic" / "index.html").read_text(encoding="utf-8")
-        for marker in ('id="house-film"', 'class="hotspot-layer"', 'id="service-drawer"'):
+        for marker in ('id="house-film"', 'class="hotspot-layer"', 'id="scene-services"', 'id="house-lead-form"'):
             self.assertIn(marker, homepage)
             self.assertIn(marker, cinematic)
 
