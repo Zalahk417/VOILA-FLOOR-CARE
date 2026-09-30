@@ -12,12 +12,17 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -v
+      - name: Validate cinematic JavaScript
+        run: node --check website/content/assets/cinematic-house.js
       - name: Build House of Voilà website
         run: |
           cd website
           python build.py
           test -f dist/index.html
           grep -q 'id="house-tour"' dist/index.html
-          grep -q 'class="hotspot-layer"' dist/index.html
-          grep -q 'id="service-drawer"' dist/index.html
-          grep -q 'Care starts with the surface' dist/index.html
+          grep -q 'id="welcome-layer"' dist/index.html
+          grep -q 'id="scene-services"' dist/index.html
+          grep -q 'href="/services/carpet-cleaning/"' dist/index.html
+          grep -q 'id="house-lead-form"' dist/index.html
+          grep -q 'id="lead-photos"' dist/index.html
+          grep -q '0402 221 071' dist/index.html
