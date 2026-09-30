@@ -45,6 +45,23 @@ export async function onRequestPost({ request, env }) {
   if (body.website) return json({ ok: true });
 
   const clean = (value, max = 2000) => String(value ?? "").trim().slice(0, max);
+  const rawAttachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 4) : [];
+  let attachmentBytes = 0;
+  const attachments = [];
+  for (const item of rawAttachments) {
+    const name = clean(item?.name, 120);
+    const type = clean(item?.type, 80).toLowerCase();
+    const size = Number(item?.size || 0);
+    const dataUrl = String(item?.data_url || "");
+    const allowedType = ["image/jpeg", "image/png", "image/webp"].includes(type);
+    const validData = /^data:image\/(jpeg|png|webp);base64,/i.test(dataUrl);
+    if (!name || !allowedType || !validData || !Number.isFinite(size) || size <= 0 || size > 3 * 1024 * 1024) {
+      return json({ error: "Invalid photo upload" }, 400);
+    }
+    attachmentBytes += dataUrl.length;
+    if (attachmentBytes > 12_000_000) return json({ error: "Photo uploads are too large" }, 413);
+    attachments.push({ name, type, size, data_url: dataUrl });
+  }
   const payload = {
     source: "website",
     customer_name: clean(body.customer_name, 120),
@@ -57,6 +74,8 @@ export async function onRequestPost({ request, env }) {
     preferred_timing: clean(body.preferred_timing, 160),
     message: clean(body.message, 3000),
     privacy_consent: body.privacy_consent === "yes",
+    attachments,
+    photo_count: attachments.length,
   };
 
   if (
