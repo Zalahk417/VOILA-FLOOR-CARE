@@ -27,7 +27,7 @@ class WebsiteBuildAcceptanceTest(unittest.TestCase):
         self.assertIn('id="house-film"', html)
         self.assertIn('class="hotspot-layer"', html)
         self.assertIn('id="service-drawer"', html)
-        self.assertIn("Care starts with the surface.", html)
+        self.assertIn('data-track="0.255,0.25,0.68', html)\n        self.assertIn('class="hotspot-finger"', html)\n        self.assertNotIn('class="hotspot-ring"', html)\n        self.assertIn("Care starts with the surface.", html)
         self.assertIn("Cinematic concept imagery", html)
         self.assertNotIn(SERVICEM8_URL, html)
         self.assertIn("0402 221 071", html)
