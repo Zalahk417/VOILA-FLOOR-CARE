@@ -390,7 +390,7 @@ def apply_latest_site_requirements() -> None:
     checks = {
         "canonical brand": BRAND in index_html,
         "House of Voilà hero": 'id="house-tour"' in index_html and 'id="house-film"' in index_html,
-        "interactive service hotspots": 'class="hotspot-layer"' in index_html and 'id="service-drawer"' in index_html,
+        "interactive service hotspots": 'class="hotspot-layer"' in index_html and 'id="scene-services"' in index_html and 'href="/services/carpet-cleaning/"' in index_html,
         "BVP enquiry path": f'href="{ENQUIRY_URL}"' in index_html,
         "no primary ServiceM8 bypass": SERVICEM8_BOOKING_URL not in index_html,
         "phone": PHONE_DISPLAY in index_html,
