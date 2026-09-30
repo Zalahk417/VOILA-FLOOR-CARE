@@ -27,6 +27,8 @@ class WebsiteBuildAcceptanceTest(unittest.TestCase):
         self.assertIn('id="house-film"', html)
         self.assertIn('class="hotspot-layer"', html)
         self.assertIn('id="welcome-layer"', html)
+        self.assertIn('src="/assets/voila-welcome-worker.webp"', html)
+        self.assertNotIn('src="data:image/webp;base64,', html)
         self.assertIn('id="scene-services"', html)
         self.assertIn('id="house-lead-form"', html)
         self.assertIn('id="lead-photos"', html)
