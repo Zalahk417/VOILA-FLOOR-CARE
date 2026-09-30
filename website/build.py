@@ -354,7 +354,7 @@ def apply_latest_site_requirements() -> None:
                 insert_at = body_match.end()
                 html = html[:insert_at] + contact_strip + html[insert_at:]
 
-        if html_path == DIST / "index.html" and '<section class="voila-hero-banner"' not in html:
+        if html_path == DIST / "index.html" and not is_cinematic and '<section class="voila-hero-banner"' not in html:
             header_end = re.search(r"</header>", html, flags=re.IGNORECASE)
             if header_end:
                 insert_at = header_end.end()
