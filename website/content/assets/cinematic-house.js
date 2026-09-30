@@ -16,6 +16,10 @@
   const leadStatus=document.getElementById('lead-status');
   if(!shell||!stage||!video)return;
 
+  if('scrollRestoration' in history) history.scrollRestoration='manual';
+  const navigationEntry=performance.getEntriesByType?.('navigation')?.[0];
+  if(!location.hash && navigationEntry?.type==='navigate') requestAnimationFrame(()=>scrollTo(0,0));
+
   let duration=20,raf=0,ready=false,last=-1,lastScene=-1;
 
   const scenes=[
@@ -89,9 +93,14 @@
   };
   const setWelcome=(p)=>{
     if(!welcome)return;
-    const exit=clamp(p/.14,0,1);
-    welcome.style.setProperty('--welcome-exit',exit.toFixed(3));
-    welcome.setAttribute('aria-hidden',exit>.985?'true':'false');
+    const fadeStart=.08,fadeEnd=.26;
+    const exit=clamp((p-fadeStart)/(fadeEnd-fadeStart),0,1);
+    welcome.style.opacity=(1-exit).toFixed(3);
+    welcome.style.transform='translateY('+(-34*exit).toFixed(1)+'px)';
+    welcome.style.visibility=exit>=.999?'hidden':'visible';
+    welcome.setAttribute('aria-hidden',exit>=.999?'true':'false');
+    const worker=welcome.querySelector('.welcome-worker');
+    if(worker) worker.style.transform='translateY('+(-18*exit).toFixed(1)+'px) scale('+(1+.018*exit).toFixed(4)+')';
   };
   const setVideoTime=(p)=>{
     if(!ready)return;
