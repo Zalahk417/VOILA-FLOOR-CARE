@@ -7,7 +7,8 @@
 <meta name="description" content="Enter the House of Voilà: an interactive cinematic home where tile, grout, wool, upholstery, leather, stone and terracotta reveal the specialist floor-care service matched to each surface.">
 <link rel="canonical" href="https://www.voilafloor.com.au/">
 <link rel="preconnect" href="https://d3u0tzju9qaucj.cloudfront.net" crossorigin>
-<link rel="stylesheet" href="/assets/cinematic-house.css">
+<link rel="preload" as="image" href="/assets/voila-welcome-worker.webp">
+<link rel="stylesheet" href="/assets/cinematic-house.css?v=20261001">
 </head>
 <body>
 <a class="skip-link" href="#after-film">Skip cinematic tour</a>
@@ -32,7 +33,7 @@
 
 
     <div class="welcome-layer" id="welcome-layer">
-      <img class="welcome-worker" src="/assets/voila-welcome-worker.webp"" alt="Voilà Floor Care technician welcoming you into the House of Voilà">
+      <img class="welcome-worker" src="/assets/voila-welcome-worker.webp" width="320" height="396" fetchpriority="high" alt="Voilà Floor Care technician welcoming you into the House of Voilà">
       <div class="welcome-copy">
         <p class="eyebrow">Welcome to The House of Voilà</p>
         <h1>Come in. Let’s look at the surfaces.</h1>
@@ -57,39 +58,31 @@
 
 
     <div class="hotspot-layer" aria-label="Interactive service links">
-      <a class="surface-hotspot" href="/services/tile-grout-cleaning/" data-start="0.08" data-end="0.42"
-        data-track="0.080,0.52,0.77;0.170,0.49,0.78;0.270,0.43,0.77;0.360,0.38,0.75;0.420,0.36,0.74"
-        style="left:52%;top:77%" aria-label="Tile and Grout Cleaning">
+      <a class="surface-hotspot" href="/services/tile-grout-cleaning/" data-service="tile" hidden aria-label="Tile and Grout Cleaning">
         <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
         <span class="hotspot-label">Tile &amp; Grout →</span>
       </a>
-      <a class="surface-hotspot" href="/services/rug-cleaning/" data-start="0.22" data-end="0.42"
-        data-track="0.220,0.27,0.69;0.300,0.22,0.68;0.360,0.19,0.67;0.420,0.16,0.66"
-        style="left:27%;top:69%" aria-label="Rug and Wool Care">
+      <a class="surface-hotspot" href="/services/rug-cleaning/" data-service="rug" hidden aria-label="Rug and Wool Care">
         <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
         <span class="hotspot-label">Rug &amp; Wool →</span>
       </a>
-      <a class="surface-hotspot" href="/services/carpet-cleaning/" data-start="0.42" data-end="0.60"
-        data-track="0.420,0.62,0.79;0.480,0.51,0.79;0.530,0.40,0.78;0.570,0.32,0.77;0.600,0.27,0.76"
-        style="left:62%;top:79%" aria-label="Carpet and Wool Specialist Care">
+      <a class="surface-hotspot" href="/services/carpet-cleaning/" data-service="carpet" hidden aria-label="Carpet and Wool Specialist Care">
         <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
         <span class="hotspot-label">Carpet &amp; Wool →</span>
       </a>
-      <a class="surface-hotspot" href="/services/upholstery-leather/" data-start="0.42" data-end="0.60"
-        data-track="0.420,0.69,0.58;0.480,0.58,0.58;0.530,0.46,0.58;0.570,0.37,0.58;0.600,0.32,0.57"
-        style="left:69%;top:58%" aria-label="Upholstery and Leather Care">
+      <a class="surface-hotspot" href="/services/upholstery-leather/" data-service="couch" hidden aria-label="Upholstery and Leather Care">
         <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
         <span class="hotspot-label">Couch &amp; Leather →</span>
       </a>
-      <a class="surface-hotspot" href="/services/tile-grout-cleaning/" data-start="0.59" data-end="0.79"
-        data-track="0.590,0.72,0.60;0.650,0.66,0.65;0.700,0.60,0.69;0.750,0.55,0.72;0.790,0.52,0.74"
-        style="left:72%;top:60%" aria-label="Shower and Grout Restoration">
+      <a class="surface-hotspot" href="/services/tile-grout-cleaning/" data-service="shower" hidden aria-label="Shower and Grout Restoration">
         <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
         <span class="hotspot-label">Shower &amp; Grout →</span>
       </a>
-      <a class="surface-hotspot" href="/services/floor-sealing-finishing/" data-start="0.77" data-end="0.91"
-        data-track="0.770,0.46,0.78;0.820,0.48,0.78;0.870,0.51,0.77;0.910,0.54,0.76"
-        style="left:46%;top:78%" aria-label="Terracotta Cleaning and Resealing">
+      <a class="surface-hotspot" href="/services/natural-stone/" data-service="stone" hidden aria-label="Natural Stone Care">
+        <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
+        <span class="hotspot-label">Natural Stone →</span>
+      </a>
+      <a class="surface-hotspot" href="/services/floor-sealing-finishing/" data-service="terracotta" hidden aria-label="Terracotta Cleaning and Resealing">
         <span class="hotspot-hand" aria-hidden="true"><span class="hotspot-contact"></span><span class="hotspot-finger">☟︎</span></span>
         <span class="hotspot-label">Terracotta &amp; Sealing →</span>
       </a>
@@ -157,6 +150,7 @@
 
   <div class="service-grid" aria-label="Voilà Floor Care services">
     <a href="/services/carpet-cleaning/"><strong>Carpet &amp; wool</strong><span>Carpet cleaning, stain work and specialist fibre care</span></a>
+    <a href="/services/rug-cleaning/"><strong>Rugs &amp; wool</strong><span>Material-aware rug cleaning and specialist fibre assessment</span></a>
     <a href="/services/upholstery-leather/"><strong>Upholstery &amp; leather</strong><span>Lounges, mattresses, textiles and leather cleaning &amp; conditioning</span></a>
     <a href="/services/tile-grout-cleaning/"><strong>Tile, grout &amp; showers</strong><span>Deep cleaning, detailing and wet-area restoration</span></a>
     <a href="/services/natural-stone/"><strong>Natural stone</strong><span>Cleaning, restoration review and suitable protection</span></a>
@@ -208,6 +202,7 @@
 </footer>
 
 <a class="floating-cta" href="/contact/">Request a Quote</a>
-<script src="/assets/cinematic-house.js" defer></script>
+<script src="/assets/cinematic-timeline.js?v=20261001" defer></script>
+<script src="/assets/cinematic-house.js?v=20261001" defer></script>
 </body>
 </html>

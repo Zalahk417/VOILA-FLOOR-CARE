@@ -13,7 +13,10 @@ jobs:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -v
       - name: Validate cinematic JavaScript
-        run: node --check website/content/assets/cinematic-house.js
+        run: |
+          node --check website/content/assets/cinematic-house.js
+          node --check website/content/assets/cinematic-timeline.js
+          node --test tests/cinematic-timeline.test.cjs
       - name: Build House of Voilà website
         run: |
           cd website

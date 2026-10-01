@@ -16,19 +16,17 @@
   const leadStatus=document.getElementById('lead-status');
   if(!shell||!stage||!video)return;
 
-  if('scrollRestoration' in history) history.scrollRestoration='manual';
+  const timeline=window.VoilaTourTimeline;
+  if(!timeline)return;
+  const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+  let duration=20,raf=0,ready=false,targetTime=0,presentedTime=0,lastScene='',seekPending=false;
+  const frameCallbacks=typeof video.requestVideoFrameCallback==='function';
+  // Reset fresh visits and reloads; preserve Back/Forward and intentional anchors.
   const navigationEntry=performance.getEntriesByType?.('navigation')?.[0];
-  if(!location.hash && navigationEntry?.type==='navigate') requestAnimationFrame(()=>scrollTo(0,0));
-
-  let duration=20,raf=0,ready=false,last=-1,lastScene=-1;
-
-  const scenes=[
-    {start:0,end:.22,no:'01',name:'Entry · Tile & Grout',services:[['Tile & Grout','/services/tile-grout-cleaning/']]},
-    {start:.22,end:.42,no:'02',name:'Living · Rug & Tile',services:[['Rug & Wool','/services/rug-cleaning/'],['Tile & Grout','/services/tile-grout-cleaning/']]},
-    {start:.42,end:.59,no:'03',name:'Lounge · Carpet & Upholstery',services:[['Carpet & Wool','/services/carpet-cleaning/'],['Couch & Leather','/services/upholstery-leather/']]},
-    {start:.59,end:.77,no:'04',name:'Ensuite · Shower & Stone',services:[['Shower & Grout','/services/tile-grout-cleaning/'],['Natural Stone','/services/natural-stone/']]},
-    {start:.77,end:1.01,no:'05',name:'Terrace · Terracotta',services:[['Terracotta & Sealing','/services/floor-sealing-finishing/'],['Natural Stone','/services/natural-stone/']]}
-  ];
+  if(!location.hash&&navigationEntry?.type!=='back_forward'){
+    if('scrollRestoration' in history)history.scrollRestoration='manual';
+    scrollTo({top:0,behavior:'instant'});
+  }
 
   const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
   const progress=()=>{
@@ -36,54 +34,36 @@
     const range=Math.max(1,shell.offsetHeight-innerHeight);
     return clamp(-r.top/range,0,1);
   };
-  const parseTrack=(value='')=>value.split(';').map(row=>row.split(',').map(Number))
-    .filter(row=>row.length===3&&row.every(Number.isFinite))
-    .map(([p,x,y])=>({p,x,y})).sort((a,b)=>a.p-b.p);
-  hotspots.forEach(el=>{el._track=parseTrack(el.dataset.track)});
-
-  const trackPoint=(points,p)=>{
-    if(!points.length)return null;
-    if(p<=points[0].p)return points[0];
-    if(p>=points[points.length-1].p)return points[points.length-1];
-    for(let i=0;i<points.length-1;i++){
-      const a=points[i],b=points[i+1];
-      if(p>=a.p&&p<=b.p){
-        const t=(p-a.p)/Math.max(.00001,b.p-a.p);
-        return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,p};
-      }
-    }
-    return points[points.length-1];
-  };
-  const project=(x,y)=>{
+  const placeHotspots=(time,scene)=>{
     const r=stage.getBoundingClientRect();
-    return{x:x*r.width,y:y*r.height};
-  };
-  const placeHotspots=(p)=>{
+    const zoom=time>=18.4?1+clamp((time-18.4)/1.3,0,1)*.32:1;
+    video.style.transform='scale('+zoom+')';
     hotspots.forEach(el=>{
-      const a=Number(el.dataset.start)||0,b=Number(el.dataset.end)||1;
-      const active=p>=a&&p<b;
+      const service=timeline.services[el.dataset.service];
+      const point=service&&timeline.pointAt(service.track,time);
+      const pos=point&&timeline.projectSurface(point,el.dataset.service,r.width,r.height,video.videoWidth||854,video.videoHeight||480,zoom);
+      const active=ready&&!shell.classList.contains('media-unavailable')&&!reducedMotion.matches&&time>.9&&scene.services.includes(el.dataset.service)&&pos.visible;
       el.hidden=!active;
       el.tabIndex=active?0:-1;
       el.setAttribute('aria-hidden',active?'false':'true');
       if(active){
-        const point=trackPoint(el._track,p);
-        if(point){
-          const pos=project(point.x,point.y);
-          el.style.left=pos.x.toFixed(1)+'px';
-          el.style.top=pos.y.toFixed(1)+'px';
-        }
+        // Keep the label in view while the pointer retains the surface's true coordinate.
+        const half=el.offsetWidth/2+8;
+        const labelX=clamp(pos.x,half,r.width-half);
+        el.style.left=labelX.toFixed(1)+'px';
+        el.style.top=pos.y.toFixed(1)+'px';
+        el.style.setProperty('--pointer-shift',(pos.x-labelX).toFixed(1)+'px');
       }
     });
   };
-  const setScene=(p)=>{
-    const idx=Math.max(0,scenes.findIndex(s=>p>=s.start&&p<s.end));
-    const scene=scenes[idx<0?scenes.length-1:idx]||scenes[scenes.length-1];
-    if(idx===lastScene)return;
-    lastScene=idx;
+  const setScene=(scene)=>{
+    if(scene.no===lastScene)return;
+    lastScene=scene.no;
     if(sceneNumber)sceneNumber.textContent=scene.no;
     if(sceneName)sceneName.textContent=scene.name;
     if(sceneServices){
-      sceneServices.replaceChildren(...scene.services.map(([label,href])=>{
+      sceneServices.replaceChildren(...scene.services.map(key=>{
+        const {label,href}=timeline.services[key];
         const a=document.createElement('a');
         a.href=href;
         a.textContent=label+' →';
@@ -93,61 +73,84 @@
   };
   const setWelcome=(p)=>{
     if(!welcome)return;
-    const fadeStart=.08,fadeEnd=.26;
+    const fadeStart=.005,fadeEnd=.085;
     const exit=clamp((p-fadeStart)/(fadeEnd-fadeStart),0,1);
     welcome.style.opacity=(1-exit).toFixed(3);
     welcome.style.transform='translateY('+(-34*exit).toFixed(1)+'px)';
     welcome.style.visibility=exit>=.999?'hidden':'visible';
     welcome.setAttribute('aria-hidden',exit>=.999?'true':'false');
+    welcome.inert=exit>=.999;
+    stage.classList.toggle('tour-started',exit>=.999);
+    const readout=stage.querySelector('.scene-readout');
+    if(readout)readout.inert=exit<.999;
     const worker=welcome.querySelector('.welcome-worker');
     if(worker) worker.style.transform='translateY('+(-18*exit).toFixed(1)+'px) scale('+(1+.018*exit).toFixed(4)+')';
   };
-  const setVideoTime=(p)=>{
-    if(!ready)return;
-    const terraceHold=Math.max(.01,duration-2.05);
-    const t=p>=.90?terraceHold:Math.min(p*duration,terraceHold);
-    if(Math.abs(video.currentTime-t)>.035)video.currentTime=t;
+  const seek=()=>{
+    if(!ready||seekPending||video.seeking||reducedMotion.matches)return;
+    if(Math.abs(video.currentTime-targetTime)>.035){
+      seekPending=true;
+      try{video.currentTime=targetTime}catch{seekPending=false}
+    }
   };
   const update=()=>{
     raf=0;
     const p=progress();
     if(bar)bar.style.width=(p*100).toFixed(2)+'%';
+    const time=presentedTime;
+    const unavailable=shell.classList.contains('media-unavailable');
+    const finalActive=reducedMotion.matches||unavailable||(p>=.90&&time>=18.4);
     chapters.forEach(el=>{
-      const a=Number(el.dataset.start)||0,b=Number(el.dataset.end)||1;
-      el.classList.toggle('is-active',p>=a&&p<b);
+      el.classList.toggle('is-active',finalActive);
+      el.inert=!finalActive;
+      el.setAttribute('aria-hidden',finalActive?'false':'true');
     });
-    setWelcome(p);
-    placeHotspots(p);
-    setScene(p);
-    if(Math.abs(p-last)>.0008){last=p;setVideoTime(p)}
+    stage.classList.toggle('is-final',finalActive);
+    setWelcome(reducedMotion.matches||unavailable?0:p);
+    const scene=timeline.sceneAt(time);
+    placeHotspots(time,scene);
+    setScene(scene);
+    const end=Math.min(19.7,Math.max(.01,duration-.1));
+    targetTime=clamp(p/.90,0,1)*end;
+    seek();
   };
   const request=()=>{if(!raf)raf=requestAnimationFrame(update)};
 
   video.addEventListener('loadedmetadata',()=>{
     duration=Number.isFinite(video.duration)&&video.duration>0?video.duration:20;
     ready=true;
-    try{video.currentTime=.01}catch{}
     update();
   });
-  video.addEventListener('canplay',()=>{ready=true;request()});
+  video.addEventListener('loadeddata',()=>{ready=true;if(!frameCallbacks)presentedTime=video.currentTime;request()});
+  video.addEventListener('seeked',()=>{
+    seekPending=false;
+    if(!frameCallbacks)presentedTime=video.currentTime;
+    request();
+  });
+  if(frameCallbacks){
+    const onFrame=(_,metadata)=>{
+      presentedTime=metadata.mediaTime;
+      request();
+      video.requestVideoFrameCallback(onFrame);
+    };
+    video.requestVideoFrameCallback(onFrame);
+  }
   addEventListener('scroll',request,{passive:true});
   addEventListener('resize',request,{passive:true});
+  addEventListener('pageshow',request);
+  reducedMotion.addEventListener('change',request);
 
   if(startTour)startTour.addEventListener('click',()=>{
     const range=Math.max(1,shell.offsetHeight-innerHeight);
-    const top=scrollY+shell.getBoundingClientRect().top+range*.16;
+    const top=scrollY+shell.getBoundingClientRect().top+range*.095;
     scrollTo({top,behavior:'smooth'});
   });
 
-  const prime=()=>{
-    if(video.readyState<1)video.load();
-    if(video.paused){
-      const p=video.play();
-      if(p&&p.then)p.then(()=>video.pause()).catch(()=>{});
-    }
-  };
-  addEventListener('touchstart',prime,{once:true,passive:true});
-  addEventListener('pointerdown',prime,{once:true,passive:true});
+  video.addEventListener('error',()=>{
+    shell.classList.add('media-unavailable');
+    hotspots.forEach(el=>{el.hidden=true});
+    request();
+  });
 
   const filesSelected=()=>Array.from(photoInput?.files||[]);
   const refreshPhotoSummary=()=>{
