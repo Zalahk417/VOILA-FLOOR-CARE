@@ -440,6 +440,18 @@ def main() -> None:
     apply_latest_site_requirements()
     write_bvp_deployment_identity()
 
+    # Cinematic surfaces must resolve to real pages, including the rug route.
+    home = (DIST / "index.html").read_text(encoding="utf-8")
+    for route in set(re.findall(r'href="(/services/[^"]+/)"', home)):
+        if not (DIST / route.strip("/") / "index.html").is_file():
+            raise RuntimeError(f"Missing cinematic service page: {route}")
+    sitemap = DIST / "sitemap.xml"
+    xml = sitemap.read_text(encoding="utf-8")
+    rug_url = "https://www.voilafloor.com.au/services/rug-cleaning/"
+    if rug_url not in xml:
+        xml = xml.replace("</urlset>", f"<url><loc>{rug_url}</loc></url>\n</urlset>")
+        sitemap.write_text(xml, encoding="utf-8")
+
     files = sum(1 for path in DIST.rglob("*") if path.is_file())
     print(f"Voilà Floor Care website built: {files} static files -> {DIST}")
 

@@ -369,6 +369,65 @@ button,a{-webkit-tap-highlight-color:transparent}.skip-link{position:fixed;left:
 
 
 /* welcome visibility hardening */
-.welcome-layer{z-index:40!important;display:block!important;opacity:1;visibility:visible;isolation:isolate}
+.welcome-layer{z-index:40;display:block;opacity:1;visibility:visible;isolation:isolate}
 .welcome-worker{z-index:1}
 .welcome-copy{z-index:2}
+
+/* Calibrated film coordinates, viewport-safe welcome and accessible scene links. */
+#house-film{transform-origin:right center}
+.scrub-stage{height:100svh}
+.scrub-shell{height:660svh}
+.welcome-worker{left:clamp(1rem,5vw,5rem);height:86svh;width:32vw;object-fit:contain;object-position:left bottom;mask-image:none;-webkit-mask-image:none}
+.welcome-copy{left:auto;right:clamp(1rem,6vw,6rem);bottom:clamp(8rem,18svh,12rem);width:min(48vw,650px)}
+.welcome-copy h1{font-size:clamp(2.6rem,5vw,5rem);max-width:13ch}
+.welcome-layer[aria-hidden="true"]{visibility:hidden}
+.scene-readout{align-items:flex-start;bottom:1.7rem;z-index:45;max-width:calc(100vw - 14rem)}
+.scene-service-links a{min-height:44px}
+.scrub-stage:not(.tour-started) .scene-readout{opacity:0;pointer-events:none}
+.surface-hotspot .hotspot-label{pointer-events:auto}
+.surface-hotspot .hotspot-hand{margin-left:var(--pointer-shift,0px)}
+.surface-hotspot .hotspot-contact{bottom:-2px;width:8px;height:8px;animation:none;opacity:1}
+.surface-hotspot .hotspot-finger{font-size:0}
+.surface-hotspot .hotspot-finger::after{content:'↓';font:900 24px/1 system-ui,sans-serif}
+.surface-hotspot[hidden]{display:none!important}
+.final-lead{bottom:8rem;max-height:calc(100svh - 13rem)}
+.is-final .hotspot-layer{z-index:50}
+.is-final .scene-id{display:none}
+.is-final .scene-readout{bottom:1.3rem}
+body:has(.scrub-stage.is-final) .floating-cta{display:none}
+.photo-upload:focus-within{outline:2px solid var(--ivory);outline-offset:3px}
+.media-unavailable{height:auto}
+.media-unavailable .scrub-stage{position:relative;min-height:100svh;height:auto;padding:7rem 1rem 2rem;display:grid;gap:2rem}
+.media-unavailable .welcome-layer{position:relative;min-height:75svh;opacity:1!important;visibility:visible!important;transform:none!important}
+.media-unavailable .final-lead{position:relative;inset:auto;opacity:1;transform:none;pointer-events:auto}
+.media-unavailable .hotspot-layer,.media-unavailable .scene-readout{display:none}
+@media(max-width:980px){.welcome-worker{left:1rem;width:38vw}.welcome-copy{width:52vw;right:1rem}.welcome-copy h1{font-size:clamp(2.5rem,5vw,4rem)}}
+@media(max-width:720px){
+  .scrub-shell{height:590svh}
+  .welcome-worker{left:1rem;top:4.5rem;bottom:auto;width:46vw;height:43svh;opacity:1;mask-image:none;-webkit-mask-image:none}
+  .welcome-copy{left:1rem;right:1rem;bottom:8rem;width:auto;padding:1rem}
+  .welcome-copy h1{font-size:clamp(2rem,8vw,3rem);max-width:18ch;line-height:1}
+  .welcome-copy>p:not(.eyebrow){font-size:.88rem;margin:.5rem 0}
+  .welcome-actions{margin-top:.6rem}
+  .welcome-actions .primary,.welcome-actions .secondary{font-size:.8rem;min-height:44px;padding:.6rem .75rem}
+  .scene-readout{max-width:calc(100vw - 1.5rem);top:5rem;bottom:auto}
+  .scene-service-links{max-width:100%}
+  .scene-service-links a{min-height:44px;font-size:.72rem}
+  .final-lead{bottom:8.6rem;max-height:calc(100svh - 13.5rem)}
+  .is-final .scene-readout{top:auto;bottom:4.8rem}
+  .lead-phone{padding:.65rem}
+  .lead-phone strong{font-size:1.45rem}
+  .floating-cta{font-size:.85rem}
+}
+@media(max-height:650px) and (max-width:720px){.welcome-worker{height:32svh;top:4rem}.welcome-copy{bottom:8rem}.welcome-copy h1{font-size:1.65rem}.welcome-copy>p:not(.eyebrow){display:none}}
+@media(prefers-reduced-motion:reduce){
+  .scrub-shell{height:auto}
+  .scrub-stage{position:relative;height:auto;min-height:100svh;padding:7rem 1rem 2rem}
+  .welcome-layer{position:relative;inset:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);align-items:center;gap:1rem}
+  .welcome-worker{position:relative;inset:auto;width:100%;height:auto;max-height:60svh}
+  .welcome-copy{position:relative;inset:auto;width:100%}
+  .final-lead{position:relative;inset:auto;width:100%;max-height:none}
+  .hotspot-layer,.scene-readout{display:none}
+  #start-tour{display:none}
+}
+@media(prefers-reduced-motion:reduce) and (max-width:720px){.welcome-layer{grid-template-columns:1fr}.welcome-worker{max-height:35svh}}
