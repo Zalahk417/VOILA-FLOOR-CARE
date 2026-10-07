@@ -2,7 +2,7 @@
   "schema_version": 3,
   "project": "voila-floor-care",
   "environment": "production",
-  "observed_at": "2026-09-24T00:08:08+08:00",
+  "observed_at": "2026-10-07T14:03:00Z",
   "observed_via": "ServiceM8 connected app live read",
   "write_enabled_by_default": false,
   "tenant_identity": {
@@ -12,8 +12,9 @@
         "uuid": "01a0c8ff-7d66-73c0-b292-1bc897ceb41b"
       }
     ],
-    "sample_job_only": true,
-    "knowledge_management_active": false
+    "sample_job_only": false,
+    "knowledge_management_active": false,
+    "only_sample_and_synthetic_jobs_observed": true
   },
   "live_configuration": {
     "categories": [
@@ -114,12 +115,36 @@
         "uuid": "01a0ce80-218f-7f59-93f1-2d4ce275704b"
       }
     ],
-    "forms": [],
+    "forms": [
+      {
+        "uuid": "01a104d6-ffd4-7f59-93f0-46bd16e3117b",
+        "name": "Sample Contract Variation"
+      },
+      {
+        "uuid": "01a104d7-3588-7f59-93f0-c15d167c19cb",
+        "name": "Sample Authority to Proceed"
+      },
+      {
+        "uuid": "01a104d7-6702-7f59-93f0-3e388faa788b",
+        "name": "Sample Job Safety Analysis"
+      },
+      {
+        "uuid": "01a104d7-b7cf-7f59-93f0-1a49b978cbab",
+        "name": "Sample Vehicle Safety Maintenance Check"
+      }
+    ],
     "job_templates": [],
     "tax_rates": [
       {
+        "uuid": "01a0c901-3c41-7f59-93f1-2792a74e03fb",
         "name": "NONE",
         "amount": "0.0000",
+        "is_default": false
+      },
+      {
+        "uuid": "01a0d283-2981-7f59-93f0-6fdf3b6837eb",
+        "name": "GST",
+        "amount": "10.0000",
         "is_default": true
       }
     ]
@@ -128,16 +153,18 @@
     "release1_control_badges_present": 9,
     "release1_control_queues_present": 4,
     "release1_controls_provider_readback_proven": true,
-    "forms_present": 0,
+    "forms_present": 4,
     "job_templates_present": 0,
-    "tax_default_is_zero": true,
-    "knowledge_search_result": "Knowledge Management is not activated for this account"
+    "tax_default_is_zero": false,
+    "knowledge_search_result": "Knowledge Management is not activated for this account",
+    "saved_job_checklist_installed": true,
+    "saved_message_masters": 4
   },
   "readiness": {
     "tenant_clean": true,
     "release1_controls_deployed": true,
     "vfc_operational_population_complete": false,
-    "tax_configuration_ready": false,
+    "tax_configuration_ready": true,
     "knowledge_ready": false,
     "customer_zero_ready": false
   },

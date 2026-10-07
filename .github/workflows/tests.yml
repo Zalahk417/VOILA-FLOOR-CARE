@@ -17,6 +17,7 @@ jobs:
           node --check website/content/assets/cinematic-house.js
           node --check website/content/assets/cinematic-timeline.js
           node --test tests/cinematic-timeline.test.cjs
+          node --test tests/enquiry.test.mjs
       - name: Build House of Voilà website
         run: |
           cd website

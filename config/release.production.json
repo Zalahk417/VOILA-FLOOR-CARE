@@ -5,8 +5,8 @@
   "repository": "Zalahk417/VOILA-FLOOR-CARE",
   "release_state": "NOT_LAUNCH_GREEN",
   "generated_from": {
-    "audit_snapshot_date": "2026-09-23",
-    "github_base_commit": "49b76f5812994a44e30581a99efe182e5f460758",
+    "audit_snapshot_date": "2026-10-07",
+    "github_base_commit": "ce002d7cb22288a5dca2b93fd8c4f0a8e29ff329",
     "ironclad_issue": 11
   },
   "root_variables": {
@@ -15,8 +15,8 @@
       "value": null
     },
     "gst_tax": {
-      "status": "NOT_READY",
-      "servicem8_observed": "NONE/0%"
+      "status": "READY",
+      "servicem8_observed": "GST/10% default"
     },
     "business_sender_identity": {
       "status": "NOT_PROVEN",
@@ -24,11 +24,9 @@
       "target_intake_sender": "bookings@voilafloor.com.au"
     },
     "canonical_intake_path": {
-      "status": "UNRESOLVED",
-      "candidates": [
-        "servicem8_native",
-        "website_cloudflare_n8n_servicem8"
-      ]
+      "status": "LOCKED",
+      "value": "website_cloudflare_n8n_servicem8",
+      "deployment_status": "STAGED_PROVEN_CLOUDFLARE_CREDENTIAL_BLOCKED"
     },
     "servicem8_tenant": {
       "status": "PROVEN_CLEAN",
@@ -42,7 +40,7 @@
     "failure_recovery_reconciliation": "NOT_PROVEN",
     "full_customer_zero": "NOT_PASSED",
     "workspace_mail_identity": "NOT_PROVEN",
-    "custom_domain": "NEEDS_FRESH_PROOF"
+    "custom_domain": "PROVEN"
   },
   "safety": {
     "production_writes_authorised": false,
@@ -57,5 +55,14 @@
     "Every mutable production capability requires provider read-back, replay safety, exercised failure handling, rollback and inspectable evidence.",
     "ServiceM8 remains authoritative for routine customer lifecycle communications.",
     "Historic Jim's customer migration/reactivation remains under legal hold until separately approved."
-  ]
+  ],
+  "scoped_intake": {
+    "stage": "STAGED_PROVEN",
+    "production_enabled": false,
+    "staged_proof": "https://github.com/Zalahk417/Zalahk417-ai-operations-system/actions/runs/37585063136",
+    "deployment_blocker": "Registered EGI Cloudflare account/token absent; run 37633595658",
+    "capability": "text_enquiry_to_unpriced_draft_only",
+    "full_lifecycle_proven": false
+  },
+  "operations_reference": "https://app.notion.com/p/0c895c346a0b410bb7871f966291f28d"
 }

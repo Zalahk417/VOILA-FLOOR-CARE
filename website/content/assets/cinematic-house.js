@@ -155,6 +155,7 @@
   const filesSelected=()=>Array.from(photoInput?.files||[]);
   const refreshPhotoSummary=()=>{
     if(!photoSummary)return;
+    if(photoInput?.disabled){photoSummary.textContent='We’ll let you know which photos would help.';return}
     const files=filesSelected();
     if(!files.length){photoSummary.textContent='Up to 4 images · JPG, PNG or WebP · 3 MB each';return}
     photoSummary.textContent=files.length===1?files[0].name:files.length+' photos selected';
@@ -195,6 +196,7 @@
       return;
     }
     const payload={
+      submission_id:leadForm.dataset.submissionId||(leadForm.dataset.submissionId=crypto.randomUUID()),
       customer_name:String(form.get('customer_name')||''),
       phone:String(form.get('phone')||''),
       email:String(form.get('email')||''),
@@ -210,8 +212,9 @@
     try{
       const res=await fetch('/api/enquiry',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
       const out=await res.json().catch(()=>({}));
-      if(!res.ok||!out.ok)throw new Error(out.error||'Enquiry could not be sent');
+      if(!res.ok||out.ok!==true||out.captured!==true||!out.correlation_id)throw new Error('We could not confirm receipt. Please call 0402 221 071.');
       leadForm.reset();
+      delete leadForm.dataset.submissionId;
       refreshPhotoSummary();
       if(leadStatus){
         leadStatus.textContent='Sent. Reference: '+(out.correlation_id||'received')+'. We’ll be in touch.';
@@ -219,7 +222,7 @@
       }
     }catch(err){
       if(leadStatus){
-        leadStatus.textContent=String(err?.message||'Enquiry could not be sent. Please call 0402 221 071.');
+        leadStatus.textContent='We could not confirm receipt. Please call 0402 221 071. Your details remain in the form.';
         leadStatus.classList.add('is-error');
       }
     }
