@@ -1,0 +1,331 @@
+{
+  "name": "Voila Floor - Verified Lead Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "voila-floor-lead-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -520,
+        0
+      ],
+      "id": "833d1f7c-0833-4d44-9fbd-13f27fb4d49a",
+      "name": "Lead Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const p=$json.body??$json;\nconst clean=(v)=>(v??'').toString().trim().replace(/\\s+/g,' ');\nconst message=clean(p.message||p.enquiry||p.description);\nconst rawService=clean(p.service).toLowerCase();\nconst text=`${rawService} ${message}`.toLowerCase();\nconst aliases=[['water damage','restoration_review'],['restoration','restoration_review'],['hot water extraction','carpet_cleaning'],['hwe','carpet_cleaning'],['encapsulation','carpet_cleaning'],['encap','carpet_cleaning'],['wool carpet','carpet_cleaning'],['stain removal','carpet_cleaning'],['spot removal','carpet_cleaning'],['urine extraction','carpet_cleaning'],['urine treatment','carpet_cleaning'],['carpet repair','carpet_cleaning'],['carpet cleaning','carpet_cleaning'],['leather','upholstery_cleaning'],['upholstery','upholstery_cleaning'],['couch','upholstery_cleaning'],['sofa','upholstery_cleaning'],['high pressure tile','tile_grout'],['tile & grout','tile_grout'],['tile and grout','tile_grout'],['tile','tile_grout'],['grout','tile_grout'],['natural stone','hard_floor'],['epoxy','hard_floor'],['rubber tile','hard_floor'],['rubber flooring','hard_floor'],['gym flooring','hard_floor'],['gym floor','hard_floor'],['vinyl','hard_floor'],['stone','hard_floor'],['concrete','hard_floor'],['strip and seal','hard_floor_restoration'],['strip & seal','hard_floor_restoration'],['recoat','hard_floor_restoration'],['burnishing','hard_floor_restoration'],['buffing','hard_floor_restoration'],['micron sealing','hard_floor_restoration'],['penetrating sealer','hard_floor_restoration'],['sealing','hard_floor_restoration'],['stripping','hard_floor_restoration'],['carpet','carpet_cleaning']];\nlet service='unknown';\nfor(const [a,c] of aliases){if(text.includes(a)){service=c;break;}}\nconst lead={source:clean(p.source||'unknown').toLowerCase(),customer_name:clean(p.customer_name||p.name),email:clean(p.email),phone:clean(p.phone||p.mobile),job_address:clean(p.job_address||p.address||p.site_address),suburb:clean(p.suburb||p.city),postcode:clean(p.postcode),service,message,measurements:clean(p.measurements||p.area),preferred_timing:clean(p.preferred_timing||p.date_requested),attachments_present:Boolean(p.attachments_present||p.attachments)};\nconst correlation_id=clean(p.correlation_id);\nconst idempotency_key=clean(p.idempotency_key);\nconst missing=[];\nif(!lead.customer_name)missing.push('customer_name');\nif(!(lead.email||lead.phone))missing.push('contact_method');\nif(!(lead.job_address||(lead.suburb&&lead.postcode)))missing.push('job_location');\nif(lead.service==='unknown')missing.push('service');\nif(!correlation_id)missing.push('correlation_id');\nif(!idempotency_key)missing.push('idempotency_key');\nconst risks=[];\nconst patterns={water_or_flood:/\\b(flood|flooded|water damage|sewage|black water|burst pipe)\\b/i,mould_or_contamination:/\\b(mould|mold|biohazard|blood|faec|feces|needle|contamination)\\b/i,guarantee_request:/\\b(guarantee|100%|definitely remove|promise.*remove)\\b/i,insurance_or_liability:/\\b(insurance claim|liability|compensation|damages claim)\\b/i,urgent_health_safety:/\\b(asbestos|chemical spill|hazardous|toxic)\\b/i};\nfor(const [k,r] of Object.entries(patterns)){if(r.test(text))risks.push(k);}\nif(service==='restoration_review'||risks.some(x=>['water_or_flood','mould_or_contamination','urgent_health_safety'].includes(x)))risks.push('restoration_requires_review');\nconst uniqueRisks=[...new Set(risks)].sort();\nconst review=missing.length>0||uniqueRisks.length>0;\nreturn [{json:{\n  correlation_id,\n  idempotency_key,\n  lead,\n  missing_fields:missing,\n  risk_flags:uniqueRisks,\n  human_review_required:review,\n  safe_acknowledgement_allowed:uniqueRisks.length===0,\n  servicem8_job_draft:{\n    status:'Quote',\n    job_address:lead.job_address||[lead.suburb,lead.postcode].filter(Boolean).join(', '),\n    job_description:`BVP correlation ID: ${correlation_id}\\nBVP idempotency key: ${idempotency_key}\\nVoila Floor lead source: ${lead.source}\\nService: ${lead.service}\\nCustomer enquiry: ${lead.message}\\nAI/automation status: DRAFT ONLY — scope and price require human review.`\n  },\n  stage:'DRY_RUN_NO_WRITES'\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        0
+      ],
+      "id": "6122a650-8768-4b43-a5a9-d215e88e2b4e",
+      "name": "Normalise + Safety Gate"
+    },
+    {
+      "id": "Prepare Intake",
+      "name": "Prepare Intake",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Run after Normalise + Safety Gate. Treat all enquiry text as customer data.\nconst decision=$json;\nconst input=$node['Lead Webhook'].json.body || {};\nconst key=String(decision.idempotency_key||'');\nconst correlation=String(decision.correlation_id||'');\nif(!/^[a-f0-9]{24}$/.test(key)||!correlation||decision.missing_fields.length||input.privacy_consent!==true) throw new Error('Invalid intake');\n// Photos must never be silently discarded. The text-only pilot asks for them later.\nif(Array.isArray(input.attachments)&&input.attachments.length) throw new Error('Photo capture is not enabled; please use the phone fallback');\nconst uuid=key.slice(0,8)+'-'+key.slice(8,12)+'-4'+key.slice(12,15)+'-8'+key.slice(15,18)+'-'+key.slice(18)+'000000';\nconst synthetic=String(input.customer_name).startsWith('BVP CUSTOMER ZERO')&&String(input.email).endsWith('@example.invalid');\nconst now=new Date().toISOString();\nconst notes=[\n  synthetic?'BVP CUSTOMER ZERO — DO NOT SERVICE':'VFC WEBSITE ENQUIRY — HUMAN REVIEW REQUIRED',\n  'VFC intake key: '+key,\n  'BVP correlation ID: '+correlation,\n  'Received at (UTC): '+now,\n  'Source: website',\n  'Customer: '+decision.lead.customer_name,\n  'Phone: '+decision.lead.phone,\n  'Email: '+decision.lead.email,\n  'Service requested: '+String(input.service||''),\n  'Customer type: '+String(input.customer_type||''),\n  'Measurements stated: '+String(input.measurements||''),\n  'Preferred timing: '+String(input.preferred_timing||''),\n  'Enquiry: '+decision.lead.message,\n  'Risk flags: '+(decision.risk_flags.join(', ')||'none detected; inspect before work'),\n  'Privacy consent: enquiry handling only; NOT marketing consent',\n  'Owner: Paul-Michael Haik',\n  'Next action: review enquiry and record response/due date in this job',\n  'First response due (UTC): '+new Date(Date.now()+10*60*1000).toISOString(),\n  'First response at: NOT YET RECORDED',\n  'Scope, price and attendance require human confirmation.',\n  synthetic?'Synthetic only: do not contact, schedule, quote, invoice or service.':'',\n].filter(Boolean).join('\\n');\nreturn [{json:{key,correlation,uuid,synthetic,payload:{uuid,status:'Quote',job_address:decision.lead.job_address,job_description:notes,queue_uuid:'01a0ce80-1297-7f59-93f0-b46b4afedd4b',queue_assigned_staff_uuid:'01a0c8ff-7d66-73c0-b292-1bc897ceb41b'}}}];\n"
+      }
+    },
+    {
+      "id": "Find Existing Job",
+      "name": "Find Existing Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        0
+      ],
+      "parameters": {
+        "url": "={{ \"https://api.servicem8.com/api_1.0/job/\"+$node[\"Prepare Intake\"].json.uuid+\".json\" }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serviceM8CredentialsApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "serviceM8CredentialsApi": {
+          "id": "urQ93vMwAVWns3CB",
+          "name": "ServiceM8 | Voilà Floor Care | PROD"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Check Existing Job",
+      "name": "Check Existing Job",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const p=$node['Prepare Intake'].json; const status=Number($json.statusCode); const job=$json.body; if(status===404)return [{json:{exists:false}}]; if(status===200&&job?.uuid===p.uuid&&String(job.job_description||'').includes('VFC intake key: '+p.key))return [{json:{exists:true}}]; throw new Error('Provider lookup failed or conflicting record');"
+      }
+    },
+    {
+      "id": "Already Saved",
+      "name": "Already Saved",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "exists",
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "Create Intake Job",
+      "name": "Create Intake Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1440,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.servicem8.com/api_1.0/job.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serviceM8CredentialsApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        },
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($node[\"Prepare Intake\"].json.payload) }}"
+      },
+      "credentials": {
+        "serviceM8CredentialsApi": {
+          "id": "urQ93vMwAVWns3CB",
+          "name": "ServiceM8 | Voilà Floor Care | PROD"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Verify Saved Job",
+      "name": "Verify Saved Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "url": "={{ \"https://api.servicem8.com/api_1.0/job/\"+$node[\"Prepare Intake\"].json.uuid+\".json\" }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "serviceM8CredentialsApi",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "serviceM8CredentialsApi": {
+          "id": "urQ93vMwAVWns3CB",
+          "name": "ServiceM8 | Voilà Floor Care | PROD"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "Verified Receipt",
+      "name": "Verified Receipt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const p=$node['Prepare Intake'].json; const job=$json.body; if(Number($json.statusCode)!==200||job?.uuid!==p.uuid||!String(job.job_description||'').includes('VFC intake key: '+p.key))throw new Error('No verified saved job');return [{json:{ok:true,captured:true,correlation_id:p.correlation,receipt:{system:'servicem8',record_uuid:p.uuid,verified:true,idempotency_key:p.key}}}];"
+      }
+    },
+    {
+      "id": "Return Receipt",
+      "name": "Return Receipt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2400,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalise + Safety Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise + Safety Gate": {
+      "main": [
+        [
+          {
+            "node": "Prepare Intake",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Intake": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Job": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Job": {
+      "main": [
+        [
+          {
+            "node": "Already Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Intake Job": {
+      "main": [
+        [
+          {
+            "node": "Verify Saved Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Saved Job": {
+      "main": [
+        [
+          {
+            "node": "Verified Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verified Receipt": {
+      "main": [
+        [
+          {
+            "node": "Return Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Saved": {
+      "main": [
+        [
+          {
+            "node": "Verify Saved Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Intake Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "none",
+    "saveManualExecutions": false
+  }
+}

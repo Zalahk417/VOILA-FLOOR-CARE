@@ -7,6 +7,7 @@ const json = (body, status = 200) => new Response(JSON.stringify(body), {
 });
 
 const canonicalKeyPayload = (payload) => ({
+  submission_id: payload.submission_id,
   source: "website",
   customer_name: payload.customer_name.toLowerCase(),
   email: payload.email.toLowerCase(),
@@ -14,6 +15,10 @@ const canonicalKeyPayload = (payload) => ({
   job_address: payload.job_address.toLowerCase(),
   service: payload.service.toLowerCase(),
   message: payload.message.toLowerCase(),
+  customer_type: payload.customer_type,
+  measurements: payload.measurements,
+  preferred_timing: payload.preferred_timing,
+  attachments: payload.attachments,
 });
 
 async function makeIdempotencyKey(payload) {
@@ -25,7 +30,7 @@ async function makeIdempotencyKey(payload) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.N8N_LEAD_WEBHOOK_URL) {
+  if (!env.N8N_LEAD_WEBHOOK_URL || !env.N8N_INGEST_TOKEN) {
     return json({ error: "Enquiry service is not configured" }, 503);
   }
 
@@ -38,6 +43,9 @@ export async function onRequestPost({ request, env }) {
   try {
     body = await request.json();
   } catch {
+    return json({ error: "Invalid request" }, 400);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return json({ error: "Invalid request" }, 400);
   }
 
@@ -63,6 +71,7 @@ export async function onRequestPost({ request, env }) {
     attachments.push({ name, type, size, data_url: dataUrl });
   }
   const payload = {
+    submission_id: clean(body.submission_id, 36),
     source: "website",
     customer_name: clean(body.customer_name, 120),
     phone: clean(body.phone, 60),
@@ -77,6 +86,9 @@ export async function onRequestPost({ request, env }) {
     attachments,
     photo_count: attachments.length,
   };
+  if (payload.submission_id && !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(payload.submission_id)) {
+    return json({ error: "Invalid submission reference" }, 400);
+  }
 
   if (
     !payload.customer_name ||
@@ -101,10 +113,12 @@ export async function onRequestPost({ request, env }) {
       headers: {
         "content-type": "application/json",
         "x-voila-source": "website",
+        "x-vfc-ingest-token": env.N8N_INGEST_TOKEN,
         "x-bvp-correlation-id": correlationId,
         "x-bvp-idempotency-key": idempotencyKey,
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000),
     });
   } catch {
     return json({ error: "Enquiry workflow unavailable" }, 502);
@@ -114,7 +128,24 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Enquiry workflow unavailable" }, 502);
   }
 
-  return json({ ok: true, correlation_id: correlationId });
+  let receipt;
+  try {
+    receipt = await upstream.json();
+  } catch {
+    return json({ error: "Enquiry receipt could not be confirmed. Please call 0402 221 071." }, 502);
+  }
+  // A workflow running successfully does not mean the enquiry was saved.
+  // The producer must read back the ServiceM8 record before issuing this receipt.
+  const record = receipt?.receipt;
+  if (receipt?.ok !== true || receipt?.captured !== true ||
+      receipt?.stage === "DRY_RUN_NO_WRITES" ||
+      receipt?.correlation_id !== correlationId ||
+      record?.system !== "servicem8" || record?.verified !== true ||
+      record?.idempotency_key !== idempotencyKey ||
+      !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(record?.record_uuid || "")) {
+    return json({ error: "Enquiry receipt could not be confirmed. Please call 0402 221 071.", correlation_id: correlationId }, 503);
+  }
+  return json({ ok: true, captured: true, correlation_id: correlationId });
 }
 
 export function onRequest() {

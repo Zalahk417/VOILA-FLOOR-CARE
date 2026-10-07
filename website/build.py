@@ -30,10 +30,6 @@ PARTS = [
 PHONE_DISPLAY = "0402 221 071"
 PHONE_E164 = "+61402221071"
 BRAND = "Voilà Floor Care"
-SERVICEM8_BOOKING_URL = (
-    "https://book.servicem8.com/request_booking"
-    "?uuid=725f7ba5-b2b6-4997-926c-1f3f26af55eb"
-)
 ENQUIRY_URL = "/contact/"
 HERO_IMAGE = "/assets/case-studies/tile-grout-restoration-03.webp"
 
@@ -113,6 +109,10 @@ def add_public_phone_details() -> None:
         "status.textContent='" + success_message + "';form.reset()",
         "status.textContent='" + success_message + "'+(out.correlation_id?' Reference: '+out.correlation_id:'');form.reset()",
     )
+    javascript = javascript.replace("if(!r.ok)", "if(!r.ok||out.ok!==true||out.captured!==true||!out.correlation_id)")
+    javascript = javascript.replace("const data=Object.fromEntries", "form.dataset.submissionId ||= crypto.randomUUID();const data=Object.fromEntries")
+    javascript = javascript.replace("JSON.stringify(data)", "JSON.stringify({...data,submission_id:form.dataset.submissionId})")
+    javascript = javascript.replace("form.reset()", "form.reset();delete form.dataset.submissionId")
     site_js.write_text(javascript, encoding="utf-8")
 
 
@@ -392,7 +392,7 @@ def apply_latest_site_requirements() -> None:
         "House of Voilà hero": 'id="house-tour"' in index_html and 'id="house-film"' in index_html,
         "interactive service hotspots": 'class="hotspot-layer"' in index_html and 'id="scene-services"' in index_html and 'href="/services/carpet-cleaning/"' in index_html,
         "BVP enquiry path": f'href="{ENQUIRY_URL}"' in index_html,
-        "no primary ServiceM8 bypass": SERVICEM8_BOOKING_URL not in index_html,
+        "no primary ServiceM8 bypass": "book.servicem8.com/request_booking" not in index_html,
         "phone": PHONE_DISPLAY in index_html,
         "terms": "/terms/" in index_html,
         "persistent quote CTA": 'class="floating-cta"' in index_html,
