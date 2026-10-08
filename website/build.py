@@ -86,6 +86,7 @@ def add_public_phone_details() -> None:
                 f'"url":"https://www.voilafloor.com.au","telephone":"{PHONE_E164}","areaServed"',
             )
 
+        html = html.replace('/assets/site.js"', '/assets/site.js?v=20261008"')
         html_path.write_text(html, encoding="utf-8")
 
     expected = {"footer": expected_footer_count, "contact": 1, "privacy": 1, "schema": 0}
