@@ -1,5 +1,9 @@
 # VFC operating baseline — 7 October 2026
 
+**Live intake verified 8 October 2026:** public website capture, provider readback, assigned owner/queue, identical retry, invalid-consent rejection and synthetic cleanup all passed. See [the production proof](evidence/2026-10-08-public-intake.json). The prior Cloudflare deployment blocker is resolved; no dashboard sign-in is needed.
+
+Deployment used the registered Cloudflare credential in Built-to-Own and the registered n8n credential in EGI, each within its existing runtime. No provider credential was copied. A scoped application token was provisioned in the VFC Pages production secret and protected n8n ingress; temporary bootstrap repository secrets were removed after configuration. No new provider, subscription, queue service or background job was added. Production settings were independently read back and the public deployment source matched `c66a59ff1d778b5b07b99bd416ece698016d1e2a`. Future activation must preserve both sides of the ingress token together; the single-runtime deployment helper requires both registered provider capabilities and is not available in the EGI-only context today.
+
 The current readiness register and weekly review live in [Command & Source of Truth](https://app.notion.com/p/0c895c346a0b410bb7871f966291f28d). ServiceM8 owns customer/job data; GitHub owns versioned implementation. Older audit sections are dated history, not current readiness.
 
 ## Enquiry contract

@@ -1,0 +1,21 @@
+{
+  "scope": "public website to VFC ServiceM8",
+  "website": "https://voilafloor.com.au/api/enquiry",
+  "customer_contacted": false,
+  "scheduled": false,
+  "invoiced": false,
+  "paid": false,
+  "synthetic_job_uuid": "1c85e8f9-79d0-42fa-895b-311f29000000",
+  "website_http_status": 200,
+  "correlation_id": "317f6f12-f7c1-498d-b634-26745b8f2a52",
+  "captured": true,
+  "independent_readback": true,
+  "queue_and_owner_verified": true,
+  "replay_same_record": true,
+  "invalid_consent_rejected": true,
+  "synthetic_closed": true,
+  "passed": true,
+  "verified_at": "2026-10-08T01:45:49Z",
+  "run_url": "https://github.com/Zalahk417/Zalahk417-ai-operations-system/actions/runs/37714484399",
+  "source_commit": "c66a59ff1d778b5b07b99bd416ece698016d1e2a"
+}
