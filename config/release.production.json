@@ -5,8 +5,8 @@
   "repository": "Zalahk417/VOILA-FLOOR-CARE",
   "release_state": "NOT_LAUNCH_GREEN",
   "generated_from": {
-    "audit_snapshot_date": "2026-10-07",
-    "github_base_commit": "ce002d7cb22288a5dca2b93fd8c4f0a8e29ff329",
+    "audit_snapshot_date": "2026-10-08",
+    "github_base_commit": "c66a59ff1d778b5b07b99bd416ece698016d1e2a",
     "ironclad_issue": 11
   },
   "root_variables": {
@@ -26,7 +26,7 @@
     "canonical_intake_path": {
       "status": "LOCKED",
       "value": "website_cloudflare_n8n_servicem8",
-      "deployment_status": "STAGED_PROVEN_CLOUDFLARE_CREDENTIAL_BLOCKED"
+      "deployment_status": "PRODUCTION_INTAKE_PROVEN"
     },
     "servicem8_tenant": {
       "status": "PROVEN_CLEAN",
@@ -34,9 +34,9 @@
     }
   },
   "runtime_gates": {
-    "servicem8_production_write": "NOT_PROVEN",
-    "provider_reread": "PARTIAL_HELPERS_ONLY",
-    "provider_replay_dedupe": "NOT_PROVEN",
+    "servicem8_production_write": "PROVEN_INTAKE_ONLY",
+    "provider_reread": "PROVEN_INTAKE_ONLY",
+    "provider_replay_dedupe": "PROVEN_INTAKE_ONLY",
     "failure_recovery_reconciliation": "NOT_PROVEN",
     "full_customer_zero": "NOT_PASSED",
     "workspace_mail_identity": "NOT_PROVEN",
@@ -57,12 +57,15 @@
     "Historic Jim's customer migration/reactivation remains under legal hold until separately approved."
   ],
   "scoped_intake": {
-    "stage": "STAGED_PROVEN",
-    "production_enabled": false,
+    "stage": "PRODUCTION_PROVEN",
+    "production_enabled": true,
     "staged_proof": "https://github.com/Zalahk417/Zalahk417-ai-operations-system/actions/runs/37585063136",
-    "deployment_blocker": "Registered EGI Cloudflare account/token absent; run 37633595658",
     "capability": "text_enquiry_to_unpriced_draft_only",
-    "full_lifecycle_proven": false
+    "full_lifecycle_proven": false,
+    "production_proof": "https://github.com/Zalahk417/Zalahk417-ai-operations-system/actions/runs/37714484399",
+    "verified_at": "2026-10-08T01:45:49Z",
+    "synthetic_job_uuid": "1c85e8f9-79d0-42fa-895b-311f29000000",
+    "customer_communications_allowed": false
   },
   "operations_reference": "https://app.notion.com/p/0c895c346a0b410bb7871f966291f28d"
 }
